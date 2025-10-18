@@ -147,6 +147,7 @@ Visual comparisons (snapshot tests) for card images may be flaky across differen
   - Use caching for npm to speed up runs; set `concurrency` to cancel outdated runs on the same branch.
   - Consider multi-reporter (e.g., `['html', 'github']`) to get inline annotations in PRs.
   - Matrix by browser (chromium, firefox, webkit) if needed; currently only chromium is enabled in `playwright.config.ts`.
+  - Build a Docker image once and publish it to a container/artifact registry (e.g., GHCR); reuse it across jobs/matrix to speed up runs and ensure a consistent runtime (helps stabilize visual snapshots).
 
 - Workflow inputs (manual dispatch)
   - Provide `workflow_dispatch` inputs to control runs from the UI, such as:
