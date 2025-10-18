@@ -13,15 +13,23 @@ export interface ApiClientOptions {
   ignoreHTTPSErrors?: boolean;
 }
 
+/**
+ * RequestBody: We can send JSON objects but other types can be added if needed plain text, FormData, etc.
+ */
+// Use unknown to avoid any; callers can pass JSON-serializable values
+export type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | { [key: string]: JSONValue };
+export type RequestBody = Record<string, JSONValue>;
+
 export interface RequestOptions {
   headers?: Record<string, string>;
   params?: Record<string, string>;
 }
-
-/**
- * RequestBody: We can send JSON objects but other types can be added if needed plain text, FormData, etc.
- */
-export type RequestBody = Record<string, any>;
 
 export interface Card {
   code: string;
@@ -29,6 +37,27 @@ export interface Card {
   images: { svg: string; png: string };
   value: string;
   suit: string;
+}
+
+export interface CreateDeckResponse {
+  success: boolean;
+  deck_id: string;
+  remaining: number;
+  shuffled?: boolean;
+}
+
+export interface DrawResponse {
+  success: boolean;
+  deck_id: string;
+  remaining: number;
+  cards: Card[];
+}
+
+export interface ShuffleResponse {
+  success: boolean;
+  deck_id: string;
+  remaining: number;
+  shuffled?: boolean;
 }
 
 export class ApiError extends Error {

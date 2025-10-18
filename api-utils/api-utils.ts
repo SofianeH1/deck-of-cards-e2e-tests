@@ -1,10 +1,15 @@
 import { request, APIRequestContext, APIResponse } from "@playwright/test";
-import { ApiClientOptions, ApiError, InternalRequestOptions, RequestBody, RequestOptions } from "./data";
 
-
+import {
+  ApiClientOptions,
+  ApiError,
+  InternalRequestOptions,
+  RequestBody,
+  RequestOptions,
+} from "./data";
 
 export class ApiClient {
-  private requestContext: APIRequestContext;
+  private requestContext: APIRequestContext | null;
   private readonly options: ApiClientOptions;
   private readonly defaultHeaders: Record<string, string>;
 
@@ -16,19 +21,18 @@ export class ApiClient {
       ...this.options.headers,
     };
 
-    this.requestContext = {} as APIRequestContext;
+    this.requestContext = null;
   }
 
   async init() {
-    this.requestContext = await request.newContext({
-      baseURL: this.options.baseUrl,
-      extraHTTPHeaders: this.defaultHeaders,
-      ignoreHTTPSErrors: this.options.ignoreHTTPSErrors,
-    });
+    await this.ensureContext();
   }
 
   async close() {
-    await this.requestContext.dispose();
+    if (this.requestContext) {
+      await this.requestContext.dispose();
+      this.requestContext = null;
+    }
   }
 
   /**
@@ -37,22 +41,69 @@ export class ApiClient {
    * @param endpoint The API endpoint that was called.
    * @returns The processed API response.
    */
-  private async processResponse(
-    response: APIResponse,
-    endpoint: string
-  ): Promise<APIResponse> {
+  private async processResponse(response: APIResponse, endpoint: string): Promise<APIResponse> {
     if (!response.ok()) {
-      const text = await response
-        .text()
-        .catch(() => "Unable to read response body");
+      const text = await response.text().catch(() => "Unable to read response body");
       throw new ApiError(
         response.status(),
         response.statusText(),
         text,
-        `${this.options.baseUrl}${endpoint}`
+        // Build a safe absolute URL for error reporting
+        (() => {
+          try {
+            return new URL(endpoint, this.options.baseUrl).toString();
+          } catch {
+            return `${this.options.baseUrl}${endpoint}`;
+          }
+        })()
       );
     }
     return response;
+  }
+
+  private async ensureContext(): Promise<APIRequestContext> {
+    if (!this.requestContext) {
+      this.requestContext = await request.newContext({
+        baseURL: this.options.baseUrl,
+        extraHTTPHeaders: this.defaultHeaders,
+        ignoreHTTPSErrors: this.options.ignoreHTTPSErrors,
+      });
+    }
+    return this.requestContext;
+  }
+
+  /**
+   * Unified request method used by all HTTP verbs.
+   */
+  private async request(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    endpoint: string,
+    requestOptions: InternalRequestOptions
+  ): Promise<APIResponse> {
+    const ctx = await this.ensureContext();
+
+    let response: APIResponse;
+    switch (method) {
+      case "GET":
+        response = await ctx.get(endpoint, requestOptions);
+        break;
+      case "POST":
+        response = await ctx.post(endpoint, requestOptions);
+        break;
+      case "PUT":
+        response = await ctx.put(endpoint, requestOptions);
+        break;
+      case "DELETE":
+        response = await ctx.delete(endpoint, requestOptions);
+        break;
+      case "PATCH":
+        response = await ctx.patch(endpoint, requestOptions);
+        break;
+      default:
+        // Exhaustiveness check
+        throw new Error(`Unsupported method: ${method}`);
+    }
+    return this.processResponse(response, endpoint);
   }
 
   async get(endpoint: string, options?: RequestOptions): Promise<APIResponse> {
@@ -60,52 +111,35 @@ export class ApiClient {
       params: options?.params,
       headers: { ...this.defaultHeaders, ...options?.headers },
     };
-
-    const response = await this.requestContext.get(endpoint, requestOptions);
-    return this.processResponse(response, endpoint);
+    return this.request("GET", endpoint, requestOptions);
   }
 
-  async post(
-    endpoint: string,
-    body?: RequestBody,
-    options?: RequestOptions
-  ): Promise<APIResponse> {
+  // For the moment we only use GET in the tests it could be useful if api evolves
+  // All methods below are not currently used but implemented for future use
+  async post(endpoint: string, body?: RequestBody, options?: RequestOptions): Promise<APIResponse> {
     const requestOptions: InternalRequestOptions = {
       data: body,
       headers: { ...this.defaultHeaders, ...options?.headers },
       params: options?.params,
     };
-
-    const response = await this.requestContext.post(endpoint, requestOptions);
-    return this.processResponse(response, endpoint);
+    return this.request("POST", endpoint, requestOptions);
   }
 
-  async put(
-    endpoint: string,
-    body?: RequestBody,
-    options?: RequestOptions
-  ): Promise<APIResponse> {
+  async put(endpoint: string, body?: RequestBody, options?: RequestOptions): Promise<APIResponse> {
     const requestOptions: InternalRequestOptions = {
       data: body,
       headers: { ...this.defaultHeaders, ...options?.headers },
       params: options?.params,
     };
-
-    const response = await this.requestContext.put(endpoint, requestOptions);
-    return this.processResponse(response, endpoint);
+    return this.request("PUT", endpoint, requestOptions);
   }
 
-  async delete(
-    endpoint: string,
-    options?: RequestOptions
-  ): Promise<APIResponse> {
+  async delete(endpoint: string, options?: RequestOptions): Promise<APIResponse> {
     const requestOptions: InternalRequestOptions = {
       headers: { ...this.defaultHeaders, ...options?.headers },
       params: options?.params,
     };
-
-    const response = await this.requestContext.delete(endpoint, requestOptions);
-    return this.processResponse(response, endpoint);
+    return this.request("DELETE", endpoint, requestOptions);
   }
 
   async patch(
@@ -118,10 +152,6 @@ export class ApiClient {
       headers: { ...this.defaultHeaders, ...options?.headers },
       params: options?.params,
     };
-
-    const response = await this.requestContext.patch(endpoint, requestOptions);
-    return this.processResponse(response, endpoint);
+    return this.request("PATCH", endpoint, requestOptions);
   }
-
-  
 }
