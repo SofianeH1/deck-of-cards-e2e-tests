@@ -1,4 +1,4 @@
-import { APIResponse } from "@playwright/test";
+import { APIResponse, Page } from "@playwright/test";
 
 export async function processJsonResponse(response: APIResponse) {
   if (!response.ok()) {
@@ -10,4 +10,19 @@ export async function processJsonResponse(response: APIResponse) {
     );
   }
   return response.json();
+}
+
+export async function htmlImgWrapper(
+  page: Page,
+  imgUrl: string
+): Promise<Page> {
+  const html = `
+    <html>
+      <body>
+        <img src="${imgUrl}" alt="Card Image" style="max-width:100%;height:auto;" />
+      </body>
+    </html>
+  `;
+  await page.setContent(html);
+  return page;
 }

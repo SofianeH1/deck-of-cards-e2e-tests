@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/SofianeH1/deck-of-cards-e2e-tests#readme",
   "devDependencies": {
-    "@playwright/test": "^1.56.1",
-    "@types/node": "^24.8.1"
+    "@playwright/test": "1.56.1",
+    "@types/dotenv": "6.1.1",
+    "@types/node": "24.8.1",
+    "dotenv": "16.6.1"
   },
   "directories": {
     "test": "tests"
