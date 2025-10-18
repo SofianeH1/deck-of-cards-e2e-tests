@@ -1,4 +1,5 @@
 import { request, APIRequestContext, APIResponse } from "@playwright/test";
+
 import {
   ApiClientOptions,
   ApiError,
@@ -40,14 +41,9 @@ export class ApiClient {
    * @param endpoint The API endpoint that was called.
    * @returns The processed API response.
    */
-  private async processResponse(
-    response: APIResponse,
-    endpoint: string
-  ): Promise<APIResponse> {
+  private async processResponse(response: APIResponse, endpoint: string): Promise<APIResponse> {
     if (!response.ok()) {
-      const text = await response
-        .text()
-        .catch(() => "Unable to read response body");
+      const text = await response.text().catch(() => "Unable to read response body");
       throw new ApiError(
         response.status(),
         response.statusText(),
@@ -120,11 +116,7 @@ export class ApiClient {
 
   // For the moment we only use GET in the tests it could be useful if api evolves
   // All methods below are not currently used but implemented for future use
-  async post(
-    endpoint: string,
-    body?: RequestBody,
-    options?: RequestOptions
-  ): Promise<APIResponse> {
+  async post(endpoint: string, body?: RequestBody, options?: RequestOptions): Promise<APIResponse> {
     const requestOptions: InternalRequestOptions = {
       data: body,
       headers: { ...this.defaultHeaders, ...options?.headers },
@@ -133,11 +125,7 @@ export class ApiClient {
     return this.request("POST", endpoint, requestOptions);
   }
 
-  async put(
-    endpoint: string,
-    body?: RequestBody,
-    options?: RequestOptions
-  ): Promise<APIResponse> {
+  async put(endpoint: string, body?: RequestBody, options?: RequestOptions): Promise<APIResponse> {
     const requestOptions: InternalRequestOptions = {
       data: body,
       headers: { ...this.defaultHeaders, ...options?.headers },
@@ -146,10 +134,7 @@ export class ApiClient {
     return this.request("PUT", endpoint, requestOptions);
   }
 
-  async delete(
-    endpoint: string,
-    options?: RequestOptions
-  ): Promise<APIResponse> {
+  async delete(endpoint: string, options?: RequestOptions): Promise<APIResponse> {
     const requestOptions: InternalRequestOptions = {
       headers: { ...this.defaultHeaders, ...options?.headers },
       params: options?.params,

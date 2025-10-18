@@ -1,12 +1,9 @@
 import { expect, test } from "@playwright/test";
+
 import { ApiClient } from "../api-utils/api-utils";
 import { Card } from "../api-utils/data";
-import {
-  createShuffledDeck,
-  drawCards,
-  shuffleRemaining,
-} from "../deck-of-card/deck-of-card";
 import { htmlImgWrapper } from "../api-utils/helper";
+import { createShuffledDeck, drawCards, shuffleRemaining } from "../deck-of-card/deck-of-card";
 
 test.describe("Deck of Cards API", () => {
   let client: ApiClient;

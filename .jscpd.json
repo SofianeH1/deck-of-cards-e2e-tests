@@ -1,0 +1,24 @@
+{
+  "threshold": 5,
+  "reporters": ["console", "html"],
+  "reportersOptions": {
+    "html": { "outDir": "jscpd-report" }
+  },
+  "minTokens": 70,
+  "minLines": 7,
+  "exitCode": true,
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/playwright-report/**",
+    "**/test-results/**",
+    "**/tests/**",
+    "**/*.png",
+    "**/*.snap",
+    "**/*.map"
+  ],
+  "path": ["."],
+  "formats": ["typescript", "javascript", "json", "markdown", "css", "html"]
+}

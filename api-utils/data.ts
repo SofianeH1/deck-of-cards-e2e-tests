@@ -16,8 +16,15 @@ export interface ApiClientOptions {
 /**
  * RequestBody: We can send JSON objects but other types can be added if needed plain text, FormData, etc.
  */
-export type RequestBody = Record<string, any>;
-
+// Use unknown to avoid any; callers can pass JSON-serializable values
+export type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | { [key: string]: JSONValue };
+export type RequestBody = Record<string, JSONValue>;
 
 export interface RequestOptions {
   headers?: Record<string, string>;

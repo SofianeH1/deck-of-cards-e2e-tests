@@ -1,9 +1,9 @@
+/**
+ * Deck of Cards API client functions.
+ */
+
 import { ApiClient } from "../api-utils/api-utils";
-import type {
-  CreateDeckResponse,
-  DrawResponse,
-  ShuffleResponse,
-} from "../api-utils/data";
+import type { CreateDeckResponse, DrawResponse, ShuffleResponse } from "../api-utils/data";
 
 /**
  * Internal: Convert mixed param values to strings for request query params.
@@ -12,9 +12,7 @@ function stringifyParams(
   params?: Record<string, string | number | boolean>
 ): Record<string, string> {
   if (!params) return {};
-  return Object.fromEntries(
-    Object.entries(params).map(([k, v]) => [k, String(v)])
-  );
+  return Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]));
 }
 
 /**
