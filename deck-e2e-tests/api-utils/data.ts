@@ -16,7 +16,6 @@ export interface ApiClientOptions {
 /**
  * RequestBody: We can send JSON objects but other types can be added if needed plain text, FormData, etc.
  */
-// Use unknown to avoid any; callers can pass JSON-serializable values
 export type JSONValue =
   | string
   | number
