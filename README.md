@@ -118,6 +118,7 @@ The config enables trace collection on first retry (`trace: on-first-retry`). If
 - Format: `npm run format`
 - Check formatting: `npm run format:check`
 - Duplicate code check: `npm run jscpd`
+- Run precommit : `npm run lint:precommit`
 - All checks: `npm run check`
 - One-time setup (deps + browsers): `npm run setup`
 
@@ -164,3 +165,4 @@ Visual comparisons (snapshot tests) for card images may be flaky across differen
   - Introduce tags and conventions (`@smoke`, `@visual`, `@regression`) and document how to use `--grep` and `--grep-invert` effectively.
   - Add scheduled runs (e.g., nightly) against the public API to catch upstream changes.
   - Enforce commit conventions (Conventional Commits) and optionally add commit linting.
+  - Auto-select base URL by environment (single variable): use one variable (e.g., `ENV=local|dev|qa|staging|prod`) and build `DECK_BASE_URL` at runtime in Playwright config via a small mapper or pattern (e.g., `https://$ENV.example.com`).
