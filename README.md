@@ -152,28 +152,28 @@ The config enables trace collection on first retry (`trace: on-first-retry`). If
 
 Visual comparisons (snapshot tests) for card images may be flaky across different machines due to OS/hardware differences (fonts, graphics stack, scaling, anti-aliasing). Creating a Docker-based mechanism to standardize the runtime (used both in CI and locally) will be a future improvement to make these comparisons more reliable.
 
-![alt text](assets/image.png)
+![alt text](deck-e2e-tests/assets/image.png)
 
-## Improvements (future work) 💡
+## Possible evolutions 💡
 
-- CI enhancements
+- **CI enhancements**
   - Add a GitHub Actions workflow to run tests on PRs and main, upload artifacts (Playwright HTML report, traces, screenshots, jscpd report).
   - Use caching for npm to speed up runs; set `concurrency` to cancel outdated runs on the same branch.
   - Consider multi-reporter (e.g., `['html', 'github']`) to get inline annotations in PRs.
   - Matrix by browser (chromium, firefox, webkit) if needed; currently only chromium is enabled in `playwright.config.ts`.
   - Build a Docker image once and publish it to a container/artifact registry (e.g., GHCR); reuse it across jobs/matrix to speed up runs and ensure a consistent runtime (helps stabilize visual snapshots).
 
-- Workflow inputs (manual dispatch)
+- **Workflow inputs (manual dispatch)**
   - Provide `workflow_dispatch` inputs to control runs from the UI, such as:
     - `base_url` (override DECK_BASE_URL)
     - `grep` (e.g., `@smoke`, `@visual`)
     - `browsers` (choice), `headed` (boolean), `update_snapshots` (boolean)
 
-- Visual comparison stability
+- **Visual comparison stability**
   - Create a consistent local run mechanism for image snapshot tests so users can record/update/verify snapshots in the same environment used by CI.
   - This will likely rely on a standardized runtime (future Docker-based mechanism) and an npm script alias (e.g., `npm run test:visual`) to drive it.
 
-- Additional suggestions
+- **Additional suggestions**
   - Upload Playwright artifacts automatically on failures for easier debugging.
   - Introduce tags and conventions (`@smoke`, `@visual`, `@regression`) and document how to use `--grep` and `--grep-invert` effectively.
   - Add scheduled runs (e.g., nightly) against the public API to catch upstream changes.
